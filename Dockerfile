@@ -17,7 +17,7 @@ ENV API_BASE_URL="https://api.openai.com/v1"
 ENV MODEL_NAME="gpt-4o-mini"
 ENV HF_TOKEN=""
 ENV ENV_BASE_URL="http://localhost:7860"
-
+ENV PYTHONPATH=/app
 # HuggingFace Spaces uses port 7860
 EXPOSE 7860
 
