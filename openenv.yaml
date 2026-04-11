@@ -1,0 +1,62 @@
+version: "1.0"
+
+metadata:
+  name: "Thermos-RL"
+  description: >
+    A CPU Thermal & Power Management environment for Reinforcement Learning.
+    The agent acts as a Neural Governor, learning to maximise Instructions-Per-Watt
+    while keeping the CPU within safe thermal and battery envelopes.
+  author: "YourName"
+  license: "MIT"
+  tags:
+    - "Systems"
+    - "Hardware"
+    - "Efficiency"
+    - "Regression"
+    - "Continuous-Action"
+
+entrypoints:
+  server: "server.app:app"
+
+observation_space:
+  type: "continuous"
+  fields:
+    cpu_temp:   { type: float, min: 0,   max: 120,  unit: "°C"   }
+    cpu_load:   { type: float, min: 0.0, max: 1.0               }
+    curr_freq:  { type: float, min: 0.8, max: 5.0,  unit: "GHz" }
+    power_draw: { type: float, min: 0,   max: 200,  unit: "W"   }
+    battery_pc: { type: float, min: 0.0, max: 100.0            }
+    time_step:  { type: int,   min: 0,   max: 500              }
+
+action_space:
+  type: "continuous"
+  fields:
+    delta_freq: { type: float, min: -1.0, max: 1.0 }
+
+tasks:
+  - id: "idle_stability"
+    difficulty: "easy"
+    description: "Hold temperature at 40°C under constant low load (0.1)."
+    grader: "MAE-based; score = 1 - (MAE / 10)"
+
+  - id: "burst_management"
+    difficulty: "medium"
+    description: >
+      Handle periodic load spikes to 0.9 without thermal throttling (>95°C).
+      Requires balancing fan power vs CPU throughput.
+    grader: "WorkDone / IdealWork; zero if any throttle event occurs"
+
+  - id: "eco_endurance"
+    difficulty: "hard"
+    description: >
+      Maximise instructions-per-watt starting on only 10% battery under
+      sinusoidally fluctuating loads.
+    grader: "TotalInstructions / BatteryConsumed (normalised)"
+
+reward:
+  type: "regression"
+  formula: >
+    R = 10 * exp(-0.1 * |T - T_target|)   [precision]
+      + Throughput / PowerDraw             [efficiency]
+      - JitterPenalty                      [stability]
+      - 100 (if terminal catastrophe)
