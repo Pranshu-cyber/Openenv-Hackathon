@@ -61,11 +61,19 @@ class CPUReward(BaseModel):
 # ---------------------------------------------------------------------------
 
 class ResetRequest(BaseModel):
-    task_id: str = Field(
+    """
+    All fields are optional so the validator can POST an empty body {}.
+    Defaults: task_id="idle_stability", seed=None
+    """
+    task_id: Optional[str] = Field(
         "idle_stability",
         description="One of: idle_stability | burst_management | eco_endurance"
     )
     seed: Optional[int] = Field(None, description="RNG seed for reproducibility")
+
+    @property
+    def resolved_task_id(self) -> str:
+        return self.task_id or "idle_stability"
 
 
 class ResetResponse(BaseModel):
@@ -75,7 +83,18 @@ class ResetResponse(BaseModel):
 
 
 class StepRequest(BaseModel):
-    action: CPUAction
+    """
+    action is optional — defaults to delta_freq=0.0 (hold frequency).
+    Allows the validator to POST an empty body {}.
+    """
+    action: Optional[CPUAction] = Field(
+        None,
+        description="If omitted, defaults to delta_freq=0.0 (hold)"
+    )
+
+    @property
+    def resolved_action(self) -> CPUAction:
+        return self.action or CPUAction(delta_freq=0.0)
 
 
 class StepResponse(BaseModel):

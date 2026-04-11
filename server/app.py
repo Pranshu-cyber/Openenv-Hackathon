@@ -152,7 +152,7 @@ def step(
         )
 
     try:
-        obs_dict, rew_dict, done, truncated, info = env.step(req.action.delta_freq)
+        obs_dict, rew_dict, done, truncated, info = env.step(req.resolved_action.delta_freq)
     except RuntimeError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 
