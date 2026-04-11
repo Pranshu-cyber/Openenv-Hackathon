@@ -1,7 +1,7 @@
 ---
 title: Thermos-RL
-colorFrom: orange
-colorTo: red
+colorFrom: blue
+colorTo: green
 sdk: docker
 pinned: false
 license: mit
